@@ -87,7 +87,9 @@ ansible-playbook -i inventory.ini site.yml
 
 **Play 2: Deploy Application**
 - Clone repository:
-https://github.com/pravinmishraaws/mini-finance-project
+  ```bash
+  https://github.com/adesegunasunmo/mini-finance.git
+  ```
 - Copy files to `/var/www/html`
 - Set correct ownership
 - Restart nginx using handler
