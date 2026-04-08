@@ -1,0 +1,63 @@
+---
+# PLAY 1 — INSTALL NGINX
+- name: Install and configure Nginx
+  hosts: web
+  become: true
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install nginx and git
+      apt:
+        name:
+          - nginx
+          - git
+        state: present
+
+    - name: Start and enable nginx
+      service:
+        name: nginx
+        state: started
+        enabled: true
+
+
+# PLAY 2 — DEPLOY APP
+- name: Deploy Mini Finance App
+  hosts: web
+  become: true
+
+  tasks:
+    - name: Clone repo
+      git:
+        repo: https://github.com/pravinmishraaws/mini_finance
+        dest: /tmp/mini-finance
+
+    - name: Copy files to web root
+      copy:
+        src: /tmp/mini-finance/
+        dest: /var/www/html/
+        remote_src: yes
+        owner: www-data
+        group: www-data
+        mode: '0755'
+      notify: restart nginx
+
+  handlers:
+    - name: restart nginx
+      service:
+        name: nginx
+        state: restarted
+
+
+# PLAY 3 — VERIFY
+- name: Verify deployment
+  hosts: localhost
+  gather_facts: no
+
+  tasks:
+    - name: Check HTTP response
+      uri:
+        url: http://4.204.224.47
+        status_code: 200
